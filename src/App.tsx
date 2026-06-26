@@ -30,6 +30,7 @@ export default function App() {
   // Shopping Cart state
   const [cartItems, setCartItems] = useState<{ [id: string]: number }>({});
   const [isStoreOpen, setIsStoreOpen] = useState(false);
+  const [toasts, setToasts] = useState<Array<{ id: string; flavorName: string; themeHex: string; volume: string }>>([]);
 
   // Newsletter state
   const [newsletterEmail, setNewsletterEmail] = useState('');
@@ -41,6 +42,19 @@ export default function App() {
       ...prev,
       [flavor.id]: (prev[flavor.id] || 0) + 1
     }));
+
+    // Trigger elegant layout toast notification
+    const newToast = {
+      id: Math.random().toString(36).substring(2, 9),
+      flavorName: flavor.name,
+      themeHex: flavor.themeHex,
+      volume: flavor.volume
+    };
+    setToasts((prev) => [...prev, newToast]);
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== newToast.id));
+    }, 3000);
   };
 
   const handleUpdateQuantity = (flavorId: string, qty: number) => {
@@ -96,6 +110,7 @@ export default function App() {
             currentPage={currentPage} 
             setCurrentPage={setCurrentPage} 
             onOpenStoreModal={() => setIsStoreOpen(true)}
+            cartItems={cartItems}
           />
 
           {/* 3. Screen Router containing Framer Motion Page Shifts */}
@@ -330,6 +345,54 @@ export default function App() {
             onUpdateQuantity={handleUpdateQuantity}
             onClearCart={handleClearCart}
           />
+
+          {/* Floating Cart Notification Toasts with subtle layout-transition pop */}
+          <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 sm:px-0">
+            <AnimatePresence>
+              {toasts.map((toast) => (
+                <motion.div
+                  key={toast.id}
+                  layout
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.2 } }}
+                  className="pointer-events-auto flex items-center gap-4 bg-zinc-950/95 border border-white/[0.08] p-4 rounded-2xl shadow-[0_15px_30px_rgba(0,0,0,0.6)] backdrop-blur-md overflow-hidden relative"
+                >
+                  {/* Accent glow line inside */}
+                  <div 
+                    className="absolute left-0 top-0 bottom-0 w-[4px]"
+                    style={{ backgroundColor: toast.themeHex }}
+                  />
+
+                  {/* Pulsing indicator */}
+                  <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.04] border border-white/[0.05]">
+                    <Sparkles className="w-4 h-4 text-lime-400" />
+                    <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-lime-400 opacity-75"></span>
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-lime-400"></span>
+                    </span>
+                  </div>
+
+                  <div className="flex-1 text-left">
+                    <span className="font-mono text-[9px] text-zinc-500 tracking-wider uppercase block">
+                      CARGO SECURED // DEPLOYED
+                    </span>
+                    <span className="font-display font-black text-xs text-white uppercase block leading-tight mt-0.5">
+                      {toast.flavorName} (12-PACK)
+                    </span>
+                    <span className="font-mono text-[9px] text-lime-400 font-bold uppercase block mt-1">
+                      +1 ADDED TO BATCH VESSEL
+                    </span>
+                  </div>
+
+                  {/* Aesthetic laser grid background */}
+                  <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none">
+                    <div className="h-10 w-10 bg-gradient-to-br from-transparent to-white/20 rounded-tl-full" />
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
 
         </div>
       )}

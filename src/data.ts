@@ -159,3 +159,19 @@ export const OFFICE_LOCATIONS = [
   { city: 'MILAN, ITALY', type: 'GLOBAL HQ & R&D LAB', address: 'Via della Moscova, 34, 20121 Milano', phone: '+39 02 8821 5422' },
   { city: 'NEW YORK, USA', type: 'CULTURE & DISTRIBUTION', address: '55 Hudson Yards, New York, NY 10001', phone: '+1 (212) 555-0143' }
 ];
+
+export const BRAND_INFO = {
+  name: "MD SHAWON MOLLA",
+  username: "shawon2210",
+  tagline: "Full-Stack Developer & 3D Web Creative",
+  location: "Bangladesh",
+  email: "shawonshanto104141@gmail.com",
+  phone: "01766998555",
+  github: "https://github.com/shawon2210",
+};
+
+export const SOCIAL_LINKS = [
+  { name: "GitHub", url: "https://github.com/shawon2210" },
+  { name: "Email", url: "mailto:shawonshanto104141@gmail.com" }
+];
+

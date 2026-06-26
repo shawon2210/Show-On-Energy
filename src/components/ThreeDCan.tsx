@@ -382,7 +382,7 @@ export default function ThreeDCan({
 
     // Resolve spec values
     const specs: CanLabelSpecs = {
-      name: customSpecs?.brandText || currentFlavor?.name || "CIAO",
+      name: customSpecs?.brandText || currentFlavor?.name || "SHOWON",
       subName: customSpecs?.subName || currentFlavor?.subName || "EXOTIQUE BURST",
       tagline: customSpecs?.tagline || currentFlavor?.tagline || "MOLECULAR ENERGY CELL",
       themeHex: customSpecs?.themeHex || currentFlavor?.themeHex || "#b512fa",

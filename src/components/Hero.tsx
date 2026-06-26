@@ -3,7 +3,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import {
   ArrowRight,
   ChevronLeft,
@@ -48,6 +48,26 @@ export default function Hero({
   // Mouse Parallax coordinates for a premium depth effect
   const [mouseCoords, setMouseCoords] = useState({ x: 0, y: 0 });
 
+  // Scroll Parallax hooks using useScroll and useTransform
+  const { scrollY } = useScroll();
+
+  // Background glow parallax values
+  const bgGlowY = useTransform(scrollY, [0, 800], [0, 180]);
+  const bgGlowScale = useTransform(scrollY, [0, 800], [1, 0.88]);
+
+  // Floating 3D Can container parallax values
+  const canY = useTransform(scrollY, [0, 800], [0, 140]);
+  const canScale = useTransform(scrollY, [0, 800], [1, 0.94]);
+
+  // Stage glow behind can parallax
+  const stageGlowY = useTransform(scrollY, [0, 800], [0, 110]);
+
+  // Decorative rings parallax
+  const ringsY = useTransform(scrollY, [0, 800], [0, 90]);
+
+  // Colossal display signature background watermark parallax
+  const watermarkY = useTransform(scrollY, [0, 800], [0, -120]);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       // Calculate normalized mouse coords from center (-0.5 to 0.5)
@@ -69,20 +89,22 @@ export default function Hero({
       <div className="absolute inset-0 pointer-events-none select-none z-0">
         
         {/* Giant Dynamic Fluid Ambient Glow */}
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={currentFlavor.id}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            transition={{ duration: 0.9, ease: "easeInOut" }}
-            className="absolute left-1/2 top-1/2 h-[700px] w-[700px] sm:h-[850px] sm:w-[850px]
-            -translate-x-1/2 -translate-y-1/2 rounded-full blur-[140px] sm:blur-[180px]"
-            style={{
-              background: `radial-gradient(circle, ${currentFlavor.themeHex}33 0%, ${currentFlavor.themeHex}08 70%, transparent 100%)`,
-            }}
-          />
-        </AnimatePresence>
+        <motion.div style={{ y: bgGlowY, scale: bgGlowScale }} className="absolute inset-0 pointer-events-none select-none">
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={currentFlavor.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              transition={{ duration: 0.9, ease: "easeInOut" }}
+              className="absolute left-1/2 top-1/2 h-[700px] w-[700px] sm:h-[850px] sm:w-[850px]
+              -translate-x-1/2 -translate-y-1/2 rounded-full blur-[140px] sm:blur-[180px]"
+              style={{
+                background: `radial-gradient(circle, ${currentFlavor.themeHex}33 0%, ${currentFlavor.themeHex}08 70%, transparent 100%)`,
+              }}
+            />
+          </AnimatePresence>
+        </motion.div>
 
         {/* Subtle Interactive Parallax Stars / Particles */}
         <motion.div 
@@ -274,14 +296,29 @@ export default function Hero({
           </motion.div>
         </div>
 
-        {/* RIGHT COLUMN: Interactive 3D Holographic Stage */}
+         {/* RIGHT COLUMN: Interactive 3D Holographic Stage */}
         <div className="lg:col-span-5 relative flex flex-col items-center justify-center order-1 lg:order-2 select-none h-[440px] sm:h-[520px] lg:h-full w-full">
           
+          {/* Colossal display signature background watermark */}
+          <motion.div 
+            style={{ y: watermarkY }}
+            className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none z-0 opacity-[0.03]"
+          >
+            <span className="font-display font-black text-[120px] sm:text-[160px] tracking-tighter text-white uppercase select-none leading-none -rotate-12">
+              SHOWON
+            </span>
+          </motion.div>
+ 
           {/* Subtle concentric sound/aesthetic wave rings */}
-          <div className="absolute h-[300px] w-[300px] sm:h-[450px] sm:w-[450px] md:h-[520px] md:w-[520px] rounded-full border border-white/[0.03] pointer-events-none" />
-          <div className="absolute h-[220px] w-[220px] sm:h-[340px] sm:w-[340px] md:h-[400px] md:w-[400px] rounded-full border border-white/[0.03] pointer-events-none" />
-          <div className="absolute h-[150px] w-[150px] sm:h-[240px] sm:w-[240px] md:h-[280px] md:w-[280px] rounded-full border border-white/[0.02] border-dashed pointer-events-none" />
-
+          <motion.div 
+            style={{ y: ringsY }}
+            className="absolute inset-0 pointer-events-none flex items-center justify-center"
+          >
+            <div className="absolute h-[300px] w-[300px] sm:h-[450px] sm:w-[450px] md:h-[520px] md:w-[520px] rounded-full border border-white/[0.03]" />
+            <div className="absolute h-[220px] w-[220px] sm:h-[340px] sm:w-[340px] md:h-[400px] md:w-[400px] rounded-full border border-white/[0.03]" />
+            <div className="absolute h-[150px] w-[150px] sm:h-[240px] sm:w-[240px] md:h-[280px] md:w-[280px] rounded-full border border-white/[0.02] border-dashed" />
+          </motion.div>
+ 
           {/* Focused dynamic ambient spotlight behind the active can */}
           <AnimatePresence mode="popLayout">
             <motion.div
@@ -294,10 +331,11 @@ export default function Hero({
               style={{
                 background: currentFlavor.themeHex,
                 opacity: 0.38,
+                y: stageGlowY,
               }}
             />
           </AnimatePresence>
-
+ 
           {/* Left Arrow Carousel Controller */}
           <button
             onClick={prevFlavor}
@@ -333,11 +371,14 @@ export default function Hero({
           >
             <ChevronLeft size={22} />
           </button>
-
+ 
           {/* INTERACTIVE 3D SPINNING PRODUCT CAN */}
-          <div className="relative z-20 w-full flex items-center justify-center">
+          <motion.div 
+            style={{ y: canY, scale: canScale }}
+            className="relative z-20 w-full flex items-center justify-center animate-none"
+          >
             <ThreeDCan currentFlavor={currentFlavor} />
-          </div>
+          </motion.div>
 
           {/* Right Arrow Carousel Controller */}
           <button

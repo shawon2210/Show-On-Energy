@@ -11,10 +11,13 @@ interface NavbarProps {
   currentPage: PageId;
   setCurrentPage: (page: PageId) => void;
   onOpenStoreModal: () => void;
+  cartItems?: { [id: string]: number };
 }
 
-export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal }: NavbarProps) {
+export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal, cartItems = {} }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const totalItems = Object.values(cartItems).reduce((a, b) => a + b, 0);
 
   const navItems = [
     { id: 'home', label: 'HOME' },
@@ -82,10 +85,31 @@ export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal }
             <button
               id="desktop-shop-btn"
               onClick={onOpenStoreModal}
-              className="group hidden sm:flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold tracking-widest text-black transition-all hover:bg-lime-400 hover:shadow-[0_0_20px_rgba(163,230,53,0.35)]"
+              className="group hidden sm:flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold tracking-widest text-black transition-all hover:bg-lime-400 hover:shadow-[0_0_20px_rgba(163,230,53,0.35)] relative overflow-visible"
             >
-              <ShoppingBag className="w-4.5 h-4.5" />
+              <div className="relative">
+                <ShoppingBag className="w-4.5 h-4.5" />
+                {totalItems > 0 && (
+                  <motion.span
+                    key={`cart-ripple-${totalItems}`}
+                    initial={{ scale: 0.5, opacity: 0.8 }}
+                    animate={{ scale: 2.2, opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="absolute inset-0 rounded-full bg-lime-500 pointer-events-none"
+                  />
+                )}
+              </div>
               <span>SHOP NOW</span>
+              {totalItems > 0 && (
+                <motion.span
+                  key={`cart-count-${totalItems}`}
+                  initial={{ scale: 0.6, rotate: -15 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  className="px-2 py-0.5 rounded-full bg-black text-lime-400 font-mono text-[9px] font-bold border border-lime-400/20 shadow-[0_0_10px_rgba(163,230,53,0.25)]"
+                >
+                  {totalItems}
+                </motion.span>
+              )}
               <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
             </button>
 
@@ -184,7 +208,19 @@ export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal }
                   }}
                   className="w-full flex items-center justify-between rounded-xl bg-white px-6 py-4 font-display text-sm font-black text-black hover:bg-lime-400 transition-all shadow-md group"
                 >
-                  <span className="tracking-widest">SHOP THE FLAVORS</span>
+                  <div className="flex items-center gap-3">
+                    <span className="tracking-widest">SHOP THE FLAVORS</span>
+                    {totalItems > 0 && (
+                      <motion.span
+                        key={`drawer-cart-count-${totalItems}`}
+                        initial={{ scale: 0.6 }}
+                        animate={{ scale: 1 }}
+                        className="px-2 py-0.5 rounded-full bg-black text-lime-400 font-mono text-[10px] font-bold border border-lime-400/20"
+                      >
+                        {totalItems}
+                      </motion.span>
+                    )}
+                  </div>
                   <ShoppingBag className="w-5 h-5 transition-transform group-hover:scale-110" />
                 </button>
 

@@ -4,8 +4,8 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldAlert, HeartHandshake, Compass } from 'lucide-react';
-import { OFFICE_LOCATIONS } from '../data';
+import { Phone, Send, CheckCircle2, ShieldAlert, HeartHandshake, Compass } from 'lucide-react';
+import { BRAND_INFO } from '../data';
 
 export default function Contact() {
   const [formValues, setFormValues] = useState({
@@ -102,42 +102,24 @@ export default function Contact() {
           
           {/* LEFT: HQ physical offices */}
           <div id="coordinates-panel" className="lg:col-span-5 flex flex-col gap-8 text-left">
-            
-            {/* Global Dispatch Line */}
-            <div className="rounded-2xl border border-white/[0.03] bg-zinc-950/60 p-6 backdrop-blur-md">
-              <span className="font-mono text-[9px] text-zinc-500 font-bold tracking-widest uppercase block">
-                CENTRAL DIRECT COMM
-              </span>
-              <a href="mailto:ciao@energy.inc" className="block font-display text-2xl font-bold text-white hover:text-lime-400 transition-colors mt-2 mb-1">
-                ciao@energy.inc
-              </a>
-              <span className="text-xs font-mono text-zinc-400">
-                Avg. response speed: &lt; 2 hrs (Active Crew)
-              </span>
-            </div>
+            <div className="rounded-2xl border border-white/[0.03] bg-zinc-950/60 p-8 backdrop-blur-md space-y-6">
+              <div>
+                <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-500">Headquarters</h3>
+                <p className="text-lg font-medium text-white">Bangladesh</p>
+              </div>
+              
+              <div>
+                <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-500">Direct Wire</h3>
+                <p className="text-lg font-medium text-white">01766998555</p>
+              </div>
 
-            {/* Office Coordinates listing */}
-            <div className="flex flex-col gap-6">
-              {OFFICE_LOCATIONS.map((loc) => (
-                <div key={loc.city} className="p-6 border-l-2 border-white/[0.08] hover:border-lime-400 bg-zinc-950/20 transition-colors">
-                  <span className="font-mono text-[10px] text-lime-400 font-bold tracking-widest block mb-1">
-                    {loc.type}
-                  </span>
-                  <h3 className="font-display text-lg font-black text-white uppercase tracking-wide">
-                    {loc.city}
-                  </h3>
-                  <p className="text-zinc-400 text-xs leading-relaxed mt-2 flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
-                    <span>{loc.address}</span>
-                  </p>
-                  <p className="text-zinc-400 text-xs mt-1.5 flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-zinc-500 shrink-0" />
-                    <span>{loc.phone}</span>
-                  </p>
-                </div>
-              ))}
+              <div>
+                <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-500">Digital Transmission</h3>
+                <a href="mailto:shawonshanto104141@gmail.com" className="text-lg font-medium text-lime-400 hover:underline">
+                  shawonshanto104141@gmail.com
+                </a>
+              </div>
             </div>
-
           </div>
 
           {/* RIGHT: High contrast dark input form */}
