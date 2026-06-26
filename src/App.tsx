@@ -14,6 +14,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StoreModal from './components/StoreModal';
 
+
 // Lazy-loaded route components
 const OurStory = React.lazy(() => import('./components/OurStory'));
 const Products = React.lazy(() => import('./components/Products'));

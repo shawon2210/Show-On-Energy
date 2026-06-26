@@ -20,6 +20,7 @@ export default class ErrorBoundary extends React.Component<Props, ErrorBoundaryS
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('[ErrorBoundary] Caught error:', error.message, errorInfo.componentStack);
     this.props.onError?.(error, errorInfo);
   }
 

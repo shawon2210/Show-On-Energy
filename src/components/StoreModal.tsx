@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Trash2, Plus, Minus, CreditCard, ShieldAlert, CheckCircle2, ShoppingBag } from 'lucide-react';
 import { ProductFlavor } from '../types';
@@ -18,6 +18,8 @@ interface StoreModalProps {
 }
 
 export default function StoreModal({ isOpen, onClose, cartItems, onUpdateQuantity, onClearCart }: StoreModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [step, setStep] = useState<'cart' | 'checkout' | 'receipt'>('cart');
   const [focusedFlavorId, setFocusedFlavorId] = useState<string>(FLAVORS[0].id);
   const [shippingValues, setShippingValues] = useState({
@@ -31,6 +33,17 @@ export default function StoreModal({ isOpen, onClose, cartItems, onUpdateQuantit
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      closeButtonRef.current?.focus();
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, onClose]);
 
   const cartKeys = Object.keys(cartItems).filter((key) => cartItems[key] > 0);
   
@@ -94,7 +107,7 @@ export default function StoreModal({ isOpen, onClose, cartItems, onUpdateQuantit
   return (
     <AnimatePresence>
       {isOpen && (
-        <div id="store-modal-container" className="fixed inset-0 z-50 flex justify-end">
+        <div id="store-modal-container" ref={modalRef} role="dialog" aria-modal="true" aria-label="Shopping cart" className="fixed inset-0 z-50 flex justify-end">
           {/* Backdrop Blur */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -124,6 +137,7 @@ export default function StoreModal({ isOpen, onClose, cartItems, onUpdateQuantit
               </div>
               <button
                 id="store-close-btn"
+                ref={closeButtonRef}
                 onClick={onClose}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
               >

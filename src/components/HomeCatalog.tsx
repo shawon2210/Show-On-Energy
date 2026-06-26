@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Eye, ArrowUpRight, Zap, Flame, ShieldAlert, Check, Sparkles, Orbit } from 'lucide-react';
 import { ProductFlavor } from '../types';
 import { FLAVORS } from '../data';
+import { handleImgError } from '../utils/fallbackImg';
 
 interface HomeCatalogProps {
   onAddToCart: (flavor: ProductFlavor) => void;
@@ -189,6 +190,7 @@ export default function HomeCatalog({ onAddToCart, onFlavorChange, onNavigateToL
                     transition={{ type: 'spring', damping: 20, stiffness: 180 }}
                     src={selectedFlavor.imageUrl}
                     alt={selectedFlavor.name}
+                    onError={handleImgError}
                     className="max-h-[320px] md:max-h-[340px] w-auto object-contain z-10 filter drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />

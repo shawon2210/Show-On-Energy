@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Check, ShieldCheck, Dumbbell, Code, Brain, Sunset, RefreshCw } from 'lucide-react';
 import { ProductFlavor } from '../types';
 import { FLAVORS, INGREDIENTS_DNA } from '../data';
+import { handleImgError } from '../utils/fallbackImg';
 
 interface HomeDNAProps {
   onAddToCart: (flavor: ProductFlavor) => void;
@@ -147,6 +148,7 @@ export default function HomeDNA({ onAddToCart }: HomeDNAProps) {
                       src={matchedFlavor.imageUrl}
                       alt={matchedFlavor.name}
                       loading="lazy"
+                      onError={handleImgError}
                       className="h-32 w-auto object-contain filter drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)] shrink-0"
                       referrerPolicy="no-referrer"
                     />

@@ -2,11 +2,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Eye, ArrowUpRight, Zap, Info, ShieldAlert, Check } from 'lucide-react';
 import { ProductFlavor } from '../types';
 import { FLAVORS, SCIENCE_METRICS } from '../data';
+import { handleImgError } from '../utils/fallbackImg';
 
 interface ProductsProps {
   onAddToCart: (flavor: ProductFlavor) => void;
@@ -15,6 +16,22 @@ interface ProductsProps {
 export default function Products({ onAddToCart }: ProductsProps) {
   const [selectedProduct, setSelectedProduct] = useState<ProductFlavor | null>(null);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedProduct(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedProduct]);
+
+  const handleCardKeyDown = (e: React.KeyboardEvent, flavor: ProductFlavor) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedProduct(flavor);
+    }
+  };
 
   const handleBuyClick = (flavor: ProductFlavor, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -64,6 +81,10 @@ export default function Products({ onAddToCart }: ProductsProps) {
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.5, delay: index * 0.08 }}
                 onClick={() => setSelectedProduct(flavor)}
+                onKeyDown={(e) => handleCardKeyDown(e, flavor)}
+                role="button"
+                tabIndex={0}
+                aria-label={`View details for ${flavor.name}`}
                 className="group relative rounded-3xl border border-white/[0.04] bg-zinc-950 p-6 flex flex-col justify-between cursor-pointer hover:border-white/[0.12] hover:bg-zinc-900/30 transition-all duration-300"
               >
                 {/* Product Glow Card Backdrop */}
@@ -91,6 +112,7 @@ export default function Products({ onAddToCart }: ProductsProps) {
                       src={flavor.imageUrl}
                       alt={flavor.name}
                       loading="lazy"
+                      onError={handleImgError}
                       className="h-full w-auto object-contain transition-transform duration-400 group-hover:-translate-y-3 group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
@@ -200,6 +222,9 @@ export default function Products({ onAddToCart }: ProductsProps) {
         {selectedProduct && (
           <div 
             id="product-modal-container"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Product details: ${selectedProduct.name}`}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
           >
             {/* Modal Backdrop */}
@@ -227,6 +252,7 @@ export default function Products({ onAddToCart }: ProductsProps) {
                     src={selectedProduct.imageUrl}
                     alt={selectedProduct.name}
                     loading="lazy"
+                    onError={handleImgError}
                     className="max-h-[280px] w-auto object-contain drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] animate-[pulse_4s_ease-in-out_infinite]"
                     referrerPolicy="no-referrer"
                   />

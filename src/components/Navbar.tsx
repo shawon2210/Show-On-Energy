@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, ArrowRight, Instagram, Twitter, Compass, Flame, ShoppingBag } from 'lucide-react';
 import { PageId } from '../types';
@@ -16,6 +16,15 @@ interface NavbarProps {
 
 export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal, cartItems = {} }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   const totalItems = Object.values(cartItems).reduce((a, b) => a + b, 0);
 
@@ -40,7 +49,11 @@ export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal, 
           {/* Brand Logo */}
           <div 
             id="brand-logo-container"
-            onClick={() => handleNavClick('home')} 
+            onClick={() => handleNavClick('home')}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavClick('home'); } }}
+            role="button"
+            tabIndex={0}
+            aria-label="Go to home page"
             className="flex cursor-pointer items-center gap-2 select-none"
           >
             <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-white text-black font-black font-display shadow-[0_0_15px_rgba(255,255,255,0.25)]">
@@ -106,6 +119,8 @@ export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal, 
                   initial={{ scale: 0.6, rotate: -15 }}
                   animate={{ scale: 1, rotate: 0 }}
                   className="px-2 py-0.5 rounded-full bg-black text-lime-400 font-mono text-[9px] font-bold border border-lime-400/20 shadow-[0_0_10px_rgba(163,230,53,0.25)]"
+                  aria-live="polite"
+                  aria-atomic="true"
                 >
                   {totalItems}
                 </motion.span>
@@ -119,6 +134,8 @@ export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal, 
               onClick={() => setIsOpen(!isOpen)}
               className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-950 text-white hover:bg-zinc-900 transition-colors"
               aria-label="Toggle Navigation Drawer"
+              aria-expanded={isOpen}
+              aria-controls="nav-drawer-panel"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

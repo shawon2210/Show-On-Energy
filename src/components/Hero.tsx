@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 import {
   ArrowRight,
@@ -90,6 +90,15 @@ export default function Hero({
       window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') prevFlavor();
+      else if (e.key === 'ArrowRight') nextFlavor();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex]);
 
   return (
     <section className="relative min-h-screen lg:h-screen w-full overflow-hidden bg-[#050505] pt-24 pb-12 lg:py-0 flex items-center">

@@ -169,12 +169,15 @@ export default function Contact() {
                         value={formValues.fullName}
                         onChange={handleInputChange}
                         placeholder="e.g., Johnny Strike"
+                        autoComplete="name"
+                        aria-invalid={!!formErrors.fullName}
+                        aria-describedby={formErrors.fullName ? 'fullName-error' : undefined}
                         className={`w-full rounded-xl border ${
                           formErrors.fullName ? 'border-rose-500 bg-rose-500/5' : 'border-white/[0.06] bg-zinc-900/60 focus:border-white/[0.2]'
                         } px-4 py-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none transition-all`}
                       />
                       {formErrors.fullName && (
-                        <span className="font-mono text-[9px] text-rose-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
+                        <span id="fullName-error" className="font-mono text-[9px] text-rose-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
                           <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                           {formErrors.fullName}
                         </span>
@@ -187,18 +190,21 @@ export default function Contact() {
                         EMAIL ROUTE *
                       </label>
                       <input
-                        type="text"
+                        type="email"
                         id="emailAddress"
                         name="emailAddress"
                         value={formValues.emailAddress}
                         onChange={handleInputChange}
                         placeholder="e.g., strike@rebel.io"
+                        autoComplete="email"
+                        aria-invalid={!!formErrors.emailAddress}
+                        aria-describedby={formErrors.emailAddress ? 'email-error' : undefined}
                         className={`w-full rounded-xl border ${
                           formErrors.emailAddress ? 'border-rose-500 bg-rose-500/5' : 'border-white/[0.06] bg-zinc-900/60 focus:border-white/[0.2]'
                         } px-4 py-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none transition-all`}
                       />
                       {formErrors.emailAddress && (
-                        <span className="font-mono text-[9px] text-rose-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
+                        <span id="email-error" className="font-mono text-[9px] text-rose-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
                           <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                           {formErrors.emailAddress}
                         </span>
@@ -237,12 +243,15 @@ export default function Contact() {
                       onChange={handleInputChange}
                       rows={5}
                       placeholder="Input wholesale request specs, volume requirements, or testing lab reviews here..."
+                      autoComplete="off"
+                      aria-invalid={!!formErrors.messageContent}
+                      aria-describedby={formErrors.messageContent ? 'message-error' : undefined}
                       className={`w-full rounded-xl border ${
                         formErrors.messageContent ? 'border-rose-500 bg-rose-500/5' : 'border-white/[0.06] bg-zinc-900/60 focus:border-white/[0.2]'
                       } px-4 py-3.5 text-xs text-white placeholder-zinc-500 focus:outline-none transition-all resize-none`}
                     />
                     {formErrors.messageContent && (
-                      <span className="font-mono text-[9px] text-rose-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
+                      <span id="message-error" className="font-mono text-[9px] text-rose-500 font-bold tracking-wide flex items-center gap-1 mt-0.5">
                         <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                         {formErrors.messageContent}
                       </span>
