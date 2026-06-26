@@ -13,6 +13,7 @@ import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import StoreModal from './components/StoreModal';
+import ReloadPrompt from './components/ReloadPrompt';
 
 
 // Lazy-loaded route components
@@ -375,6 +376,9 @@ export default function App() {
             onUpdateQuantity={handleUpdateQuantity}
             onClearCart={handleClearCart}
           />
+
+          {/* PWA Update Prompt */}
+          <ReloadPrompt />
 
           {/* Floating Cart Notification Toasts with subtle layout-transition pop */}
           <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 sm:px-0">
