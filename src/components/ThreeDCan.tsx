@@ -332,6 +332,7 @@ export default function ThreeDCan({
   const rimMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
   const canTextureRef = useRef<THREE.CanvasTexture | null>(null);
   const mountedRef = useRef(false);
+  const isVisibleRef = useRef(true);
 
   // State refs to share variables between touch drag events and render frames
   const dragRef = useRef({
@@ -532,6 +533,7 @@ export default function ThreeDCan({
       const animate = () => {
         if (!mountedRef.current) return;
         animationId = requestAnimationFrame(animate);
+        if (!isVisibleRef.current) return;
 
         const drag = dragRef.current;
         const cg = canGroupRef.current;
@@ -573,6 +575,12 @@ export default function ThreeDCan({
 
       animate();
 
+      // IntersectionObserver: pause animation when off-screen
+      const visibilityObserver = new IntersectionObserver(([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      }, { threshold: 0.1 });
+      visibilityObserver.observe(currentMount);
+
       // Resize observer
       const resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
@@ -589,6 +597,8 @@ export default function ThreeDCan({
       return () => {
         mountedRef.current = false;
         cancelAnimationFrame(animationId);
+        visibilityObserver.unobserve(currentMount);
+        visibilityObserver.disconnect();
         resizeObserver.unobserve(currentMount);
         resizeObserver.disconnect();
 

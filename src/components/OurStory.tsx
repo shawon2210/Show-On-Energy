@@ -48,6 +48,7 @@ export default function OurStory() {
               <img
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZoipZjJfjD1hJAkhvDoCfQp1G1UgBjY_DuYv0oCByZJDwF_bgf4pRAj3pXRM7Etui9z_XkrlK-Uz1GSfMgZolkE7JlG8W6Qfap3GjfkJOoyUTfeYW-p-qD7Pr9EdUuB52HdAeXJu3Z-Rjs46Y5YquoqBk3CiZRzKDz-bMllcA6e6CpR-1GvAPkOuj1E8TRJsDwf4NzxrKZISmMllK8haD0PuP2QgNbFhpPCgFk2AHXTUirNmiAAjrIrpg6JpYA-3gaYxfE2HGxxx4"
                 alt="Fresh organic Litchi fruit background"
+                loading="lazy"
                 className="w-full h-full object-cover opacity-20 group-hover:scale-105 transition-transform duration-500"
                 referrerPolicy="no-referrer"
               />
@@ -157,6 +158,7 @@ export default function OurStory() {
               <img
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYhYaJqqSchJGXSnvTO75BYT_-j9oTjA8OM3oSxlor9QqhzDuZfKxVuCXdVgTOVL33bP2khZweOAuqg2YNt19lCpTvlXEf5LJ5EF2Daic5t0_ZRE8l2zdBFm1KFRPKogZPPrn329AhIBRrpttn5Unoy9xBnWxb5ZE1oVl60sjr6D-0pV-L2dOJG8spPAXJYqubihBTZurTGq3gWoHtc5UZvD5byRVAkCWIGtqYekknawvVvI8Cj_-GmzFSuEQFLxtEmBtXMpMynyXv"
                 alt="Group of rebellious creators"
+                loading="lazy"
                 className="w-full h-full object-cover object-center filter grayscale opacity-60 hover:grayscale-0 transition-all duration-500"
                 referrerPolicy="no-referrer"
               />

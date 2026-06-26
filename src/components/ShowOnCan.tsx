@@ -328,67 +328,35 @@ export default function ShowOnCan({
           return (
             <div
               key={i}
-              className="absolute top-0 bottom-0 overflow-hidden"
+              className="showoncan-face absolute top-0 bottom-0 overflow-hidden"
               style={{
                 width: `${stripWidth}px`,
-                // Centering the strip on the Y-axis pivot point
                 left: `calc(50% - ${stripWidth / 2}px)`,
-                
-                // 3D placement: Rotate to its position on the circle, then push out to the radius
                 transform: `rotateY(${faceAngle}deg) translateZ(${canRadius - 0.25}px)`,
                 transformStyle: 'preserve-3d',
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
-              }}
+                boxShadow: 'inset 1px 0 0 rgba(0,0,0,0.25), inset -1px 0 0 rgba(0,0,0,0.25)',
+                '--d': `${1 - shadingIntensity}`,
+                '--r': `${rimIntensity * 0.4 * glossiness}`,
+              } as React.CSSProperties}
             >
-              {/* Seamless Sliced Texture Container */}
               <div
                 className="relative h-full"
                 style={{
                   width: `${labelWidth}px`,
-                  // Shifts the label left by the strip position to map the texture
                   transform: `translateX(-${i * (labelWidth / numFaces)}px)`,
                 }}
               >
-                {/* Custom-rendered Brand Label */}
                 {renderLabel()}
               </div>
 
-              {/* REAL-TIME Phong 3D Lighting Shading Overlays */}
-              
-              {/* 1. Diffuse Shading Overlay (Dark shadow to bend the flat strips into a 3D cylinder) */}
               <div 
-                className="absolute inset-0 pointer-events-none mix-blend-multiply transition-opacity duration-100"
-                style={{
-                  backgroundColor: 'black',
-                  opacity: 1 - shadingIntensity,
-                }}
-              />
-
-              {/* 2. Specular Glossy Reflection (Stationary shiny light highlight) */}
-              <div 
-                className="absolute inset-0 pointer-events-none mix-blend-color-dodge transition-opacity duration-100"
+                className="absolute inset-0 pointer-events-none mix-blend-color-dodge z-10"
                 style={{
                   background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.85) 50%, transparent 100%)',
                   opacity: specularIntensity * glossiness,
                 }}
-              />
-
-              {/* 3. Rim Lighting Overlay (Gently illuminates the curved silhouette edges) */}
-              <div 
-                className="absolute inset-0 pointer-events-none mix-blend-screen transition-opacity duration-100"
-                style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)',
-                  opacity: rimIntensity * 0.4 * glossiness,
-                }}
-              />
-
-              {/* Extreme edge dark shadow to soften geometry lines */}
-              <div 
-                className="absolute left-0 w-[1px] h-full bg-black/25 pointer-events-none"
-              />
-              <div 
-                className="absolute right-0 w-[1px] h-full bg-black/25 pointer-events-none"
               />
             </div>
           );

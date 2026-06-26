@@ -90,6 +90,7 @@ export default function Products({ onAddToCart }: ProductsProps) {
                     <img
                       src={flavor.imageUrl}
                       alt={flavor.name}
+                      loading="lazy"
                       className="h-full w-auto object-contain transition-transform duration-400 group-hover:-translate-y-3 group-hover:scale-105"
                       referrerPolicy="no-referrer"
                     />
@@ -154,6 +155,7 @@ export default function Products({ onAddToCart }: ProductsProps) {
             <img
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCX2slw5ToS-2rb8ZPrv4mkQVnnJNPOZ9wdNSIFoV6L3644lavVtZFWqCiVHBevgJVB53DTbs19aJXBoTfaZ-DgckFL3HG0MVl9S6u4lC5HA4waKttiZm7aecDM9h5svsBjaSy2In3fnAD7Y3hdsrJXEVwc8sGiShmx9JJZWUc7SiCaZkkVx3Yi2SU_pNbqiHjz5rNJ6ULnCbtmPmHK6KRJMndBnU51Aqy8sCBF-j1MYzFsaWIDIcDkdOGRdZsjGwzxr8xTR_IsPeO6"
               alt="Scientific water splash background"
+              loading="lazy"
               className="w-full h-full object-cover opacity-15 filter grayscale hover:grayscale-0 transition-all duration-700"
               referrerPolicy="no-referrer"
             />
@@ -224,6 +226,7 @@ export default function Products({ onAddToCart }: ProductsProps) {
                   <img
                     src={selectedProduct.imageUrl}
                     alt={selectedProduct.name}
+                    loading="lazy"
                     className="max-h-[280px] w-auto object-contain drop-shadow-[0_15px_20px_rgba(0,0,0,0.6)] animate-[pulse_4s_ease-in-out_infinite]"
                     referrerPolicy="no-referrer"
                   />

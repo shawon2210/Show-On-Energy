@@ -69,15 +69,24 @@ export default function Hero({
   const watermarkY = useTransform(scrollY, [0, 800], [0, -120]);
 
   useEffect(() => {
+    let rafId: number;
+    let latestCoords = { x: 0, y: 0 };
+
     const handleMouseMove = (e: MouseEvent) => {
-      // Calculate normalized mouse coords from center (-0.5 to 0.5)
-      const x = (e.clientX / window.innerWidth) - 0.5;
-      const y = (e.clientY / window.innerHeight) - 0.5;
-      setMouseCoords({ x, y });
+      latestCoords.x = (e.clientX / window.innerWidth) - 0.5;
+      latestCoords.y = (e.clientY / window.innerHeight) - 0.5;
     };
 
+    const throttleLoop = () => {
+      setMouseCoords(latestCoords);
+      rafId = requestAnimationFrame(throttleLoop);
+    };
+
+    rafId = requestAnimationFrame(throttleLoop);
     window.addEventListener("mousemove", handleMouseMove);
+
     return () => {
+      cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);

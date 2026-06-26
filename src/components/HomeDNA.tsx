@@ -146,6 +146,7 @@ export default function HomeDNA({ onAddToCart }: HomeDNAProps) {
                     <img
                       src={matchedFlavor.imageUrl}
                       alt={matchedFlavor.name}
+                      loading="lazy"
                       className="h-32 w-auto object-contain filter drop-shadow-[0_8px_15px_rgba(0,0,0,0.5)] shrink-0"
                       referrerPolicy="no-referrer"
                     />

@@ -75,6 +75,7 @@ export default function HomePoster({ onNavigateToLab }: HomePosterProps) {
             <img 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuCX2slw5ToS-2rb8ZPrv4mkQVnnJNPOZ9wdNSIFoV6L3644lavVtZFWqCiVHBevgJVB53DTbs19aJXBoTfaZ-DgckFL3HG0MVl9S6u4lC5HA4waKttiZm7aecDM9h5svsBjaSy2In3fnAD7Y3hdsrJXEVwc8sGiShmx9JJZWUc7SiCaZkkVx3Yi2SU_pNbqiHjz5rNJ6ULnCbtmPmHK6KRJMndBnU51Aqy8sCBF-j1MYzFsaWIDIcDkdOGRdZsjGwzxr8xTR_IsPeO6" 
               alt="Artistic botanical splatter poster" 
+              loading="lazy"
               className="w-full h-full object-cover filter grayscale scale-105"
               referrerPolicy="no-referrer"
             />

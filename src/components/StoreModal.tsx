@@ -223,6 +223,7 @@ export default function StoreModal({ isOpen, onClose, cartItems, onUpdateQuantit
                             <img
                               src={flavor.imageUrl}
                               alt={flavor.name}
+                              loading="lazy"
                               className="h-16 w-auto object-contain shrink-0 filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform"
                               referrerPolicy="no-referrer"
                             />

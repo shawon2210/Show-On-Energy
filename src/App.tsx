@@ -2,25 +2,38 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, ArrowRight, ShieldCheck, Instagram, Twitter, MessageSquareCode, Sparkles } from 'lucide-react';
 import { PageId, ProductFlavor } from './types';
 import { FLAVORS } from './data';
 
-// Components
+// Critical path components (eagerly loaded)
 import Preloader from './components/Preloader';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import OurStory from './components/OurStory';
-import Products from './components/Products';
-import Contact from './components/Contact';
 import StoreModal from './components/StoreModal';
-import Can3DLab from './components/Can3DLab';
-import HomeCatalog from './components/HomeCatalog';
-import HomePoster from './components/HomePoster';
-import HomeDNA from './components/HomeDNA';
-import HomeTestimonials from './components/HomeTestimonials';
+
+// Lazy-loaded route components
+const OurStory = React.lazy(() => import('./components/OurStory'));
+const Products = React.lazy(() => import('./components/Products'));
+const Contact = React.lazy(() => import('./components/Contact'));
+const Can3DLab = React.lazy(() => import('./components/Can3DLab'));
+const HomeCatalog = React.lazy(() => import('./components/HomeCatalog'));
+const HomePoster = React.lazy(() => import('./components/HomePoster'));
+const HomeDNA = React.lazy(() => import('./components/HomeDNA'));
+const HomeTestimonials = React.lazy(() => import('./components/HomeTestimonials'));
+
+function PageSkeleton() {
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-8 w-8 rounded-full border-2 border-lime-400 border-t-transparent animate-spin" />
+        <span className="font-mono text-[10px] text-zinc-600 uppercase tracking-widest">Loading...</span>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [isPreloading, setIsPreloading] = useState(true);
@@ -132,24 +145,32 @@ export default function App() {
                   />
 
                   {/* Enhanced Product Catalog Showcase */}
-                  <HomeCatalog 
-                    onAddToCart={handleAddToCart}
-                    onFlavorChange={handleFlavorChange}
-                    onNavigateToLab={() => setCurrentPage('can3d')}
-                  />
+                  <Suspense fallback={null}>
+                    <HomeCatalog 
+                      onAddToCart={handleAddToCart}
+                      onFlavorChange={handleFlavorChange}
+                      onNavigateToLab={() => setCurrentPage('can3d')}
+                    />
+                  </Suspense>
 
                   {/* Cinematic Brand Poster Section */}
-                  <HomePoster 
-                    onNavigateToLab={() => setCurrentPage('can3d')}
-                  />
+                  <Suspense fallback={null}>
+                    <HomePoster 
+                      onNavigateToLab={() => setCurrentPage('can3d')}
+                    />
+                  </Suspense>
 
                   {/* Technical Ingredients DNA & Matcher quiz */}
-                  <HomeDNA 
-                    onAddToCart={handleAddToCart}
-                  />
+                  <Suspense fallback={null}>
+                    <HomeDNA 
+                      onAddToCart={handleAddToCart}
+                    />
+                  </Suspense>
 
                   {/* High Fidelity Community Testimonials */}
-                  <HomeTestimonials />
+                  <Suspense fallback={null}>
+                    <HomeTestimonials />
+                  </Suspense>
                 </motion.div>
               )}
 
@@ -161,7 +182,9 @@ export default function App() {
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
                 >
-                  <OurStory />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <OurStory />
+                  </Suspense>
                 </motion.div>
               )}
 
@@ -173,7 +196,9 @@ export default function App() {
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
                 >
-                  <Products onAddToCart={handleAddToCart} />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Products onAddToCart={handleAddToCart} />
+                  </Suspense>
                 </motion.div>
               )}
 
@@ -185,7 +210,9 @@ export default function App() {
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
                 >
-                  <Contact />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Contact />
+                  </Suspense>
                 </motion.div>
               )}
 
@@ -197,7 +224,9 @@ export default function App() {
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.35 }}
                 >
-                  <Can3DLab />
+                  <Suspense fallback={<PageSkeleton />}>
+                    <Can3DLab />
+                  </Suspense>
                 </motion.div>
               )}
             </AnimatePresence>
