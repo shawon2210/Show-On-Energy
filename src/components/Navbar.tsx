@@ -88,7 +88,7 @@ export default function Navbar({ currentPage, setCurrentPage, onOpenStoreModal, 
               className="group hidden sm:flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-xs font-bold tracking-widest text-black transition-all hover:bg-lime-400 hover:shadow-[0_0_20px_rgba(163,230,53,0.35)] relative overflow-visible"
             >
               <div className="relative">
-                <ShoppingBag className="w-4.5 h-4.5" />
+                <ShoppingBag className="w-[18px] h-[18px]" />
                 {totalItems > 0 && (
                   <motion.span
                     key={`cart-ripple-${totalItems}`}

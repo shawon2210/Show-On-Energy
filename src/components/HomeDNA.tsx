@@ -258,7 +258,7 @@ export default function HomeDNA({ onAddToCart }: HomeDNAProps) {
 
             {/* Botanical Quality Standard Stamp */}
             <div className="mt-8 pt-6 border-t border-white/[0.04] flex items-center gap-3 font-mono text-[9px] text-zinc-600">
-              <span className="h-4.5 w-4.5 rounded-full bg-lime-500/10 text-lime-400 flex items-center justify-center font-bold text-[8px] border border-lime-500/20">
+              <span className="h-[18px] w-[18px] rounded-full bg-lime-500/10 text-lime-400 flex items-center justify-center font-bold text-[8px] border border-lime-500/20">
                 A
               </span>
               <span>CERTIFIED BIO-VEGAN & NON-GMO RECIPIES // BATCH_004 STANDARD</span>

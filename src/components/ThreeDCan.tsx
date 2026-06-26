@@ -318,6 +318,20 @@ export default function ThreeDCan({
   const mountRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  // Refs to hold Three.js objects across renders
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const canGroupRef = useRef<THREE.Group | null>(null);
+  const particlesRef = useRef<THREE.Points | null>(null);
+  const particleGeoRef = useRef<THREE.BufferGeometry | null>(null);
+  const pointLightRef = useRef<THREE.PointLight | null>(null);
+  const canMaterialRef = useRef<THREE.MeshPhysicalMaterial | null>(null);
+  const rimMaterialRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const canTextureRef = useRef<THREE.CanvasTexture | null>(null);
+  const mountedRef = useRef(false);
 
   // State refs to share variables between touch drag events and render frames
   const dragRef = useRef({
@@ -328,65 +342,310 @@ export default function ThreeDCan({
     targetRotationX: 0.1,
     currentRotationY: 0,
     currentRotationX: 0.1,
-    spinVelocity: 0.006, // Autospin default velocity
+    spinVelocity: 0.006,
     floatTime: 0
   });
 
-  // Track flavor changes to animate a massive 3D full-spin boost!
+  // Effect 1: Setup Three.js scene (runs once on mount)
   useEffect(() => {
-    dragRef.current.targetRotationY += Math.PI * 2; // Trigger full 360 rotation boost on change
-  }, [currentFlavor?.id, customSpecs?.brandText]);
-
-  useEffect(() => {
+    if (hasError) return;
     const currentMount = mountRef.current;
     if (!currentMount) return;
 
-    // Clear any residual elements to absolutely prevent duplicate canvases!
-    currentMount.innerHTML = "";
+    mountedRef.current = true;
+    setHasError(false);
 
-    // A. SETUP THREE.JS SCENE CONTEXT
-    const width = currentMount.clientWidth || 280;
-    const height = currentMount.clientHeight || 460;
+    // Remove any existing canvas
+    const existingCanvas = currentMount.querySelector('canvas');
+    if (existingCanvas) {
+      currentMount.removeChild(existingCanvas);
+    }
 
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x050505, 0.025);
+    try {
+      const width = currentMount.clientWidth || 280;
+      const height = currentMount.clientHeight || 460;
 
-    // B. PERSPECTIVE CAMERA
-    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-    camera.position.set(0, 0.1, 5.2);
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x050505, 0.025);
+      sceneRef.current = scene;
 
-    // C. WEBGL RENDERER
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
-    currentMount.appendChild(renderer.domElement);
+      const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+      camera.position.set(0, 0.1, 5.2);
+      cameraRef.current = camera;
 
-    // D. DYNAMIC LIGHTING SUITE
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.42);
-    scene.add(ambientLight);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
+      currentMount.appendChild(renderer.domElement);
+      rendererRef.current = renderer;
 
-    // High Specular Directional Spotlight
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    dirLight.position.set(4, 5, 4);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    scene.add(dirLight);
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.42);
+      scene.add(ambientLight);
 
-    // Warm back filler
-    const fillLight = new THREE.DirectionalLight(0xffffff, 0.45);
-    fillLight.position.set(-4, 2, -4);
-    scene.add(fillLight);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
+      dirLight.position.set(4, 5, 4);
+      dirLight.castShadow = true;
+      dirLight.shadow.mapSize.width = 1024;
+      dirLight.shadow.mapSize.height = 1024;
+      scene.add(dirLight);
 
-    // Resolve spec values
+      const fillLight = new THREE.DirectionalLight(0xffffff, 0.45);
+      fillLight.position.set(-4, 2, -4);
+      scene.add(fillLight);
+
+      const specs: CanLabelSpecs = {
+        name: customSpecs?.brandText || currentFlavor?.name || "SHOWON",
+        subName: customSpecs?.subName || currentFlavor?.subName || "EXOTIQUE BURST",
+        tagline: customSpecs?.tagline || currentFlavor?.tagline || "MOLECULAR ENERGY CELL",
+        themeHex: customSpecs?.themeHex || currentFlavor?.themeHex || "#b512fa",
+        accentHex: customSpecs?.accentHex || "#ffffff",
+        volume: customSpecs?.volume || currentFlavor?.volume || "250ml",
+        caffeine: customSpecs?.caffeine || currentFlavor?.nutrition?.caffeine || "150mg",
+        sugar: customSpecs?.sugar || currentFlavor?.nutrition?.sugar || "2.5g",
+        taurine: customSpecs?.taurine || currentFlavor?.nutrition?.taurine || "1000mg",
+        bVitamins: customSpecs?.bVitamins || currentFlavor?.nutrition?.bVitamins || "250% DV",
+        calories: customSpecs?.calories || currentFlavor?.nutrition?.calories || "15 kcal"
+      };
+
+      const flavorThemeColor = new THREE.Color(specs.themeHex);
+
+      const pointLight = new THREE.PointLight(flavorThemeColor, 1.6, 12, 1.5);
+      pointLight.position.set(0, -1, 3);
+      scene.add(pointLight);
+      pointLightRef.current = pointLight;
+
+      const pointLightBack = new THREE.PointLight(flavorThemeColor, 0.8, 8, 2);
+      pointLightBack.position.set(-3, 3, -3);
+      scene.add(pointLightBack);
+
+      // Texture
+      const labelCanvas = document.createElement("canvas");
+      labelCanvas.width = 1024;
+      labelCanvas.height = 512;
+      drawCanLabel(labelCanvas, specs);
+
+      const canTexture = new THREE.CanvasTexture(labelCanvas);
+      canTexture.colorSpace = THREE.SRGBColorSpace;
+      canTexture.wrapS = THREE.RepeatWrapping;
+      canTexture.wrapT = THREE.ClampToEdgeWrapping;
+      canTextureRef.current = canTexture;
+
+      const metalColors = {
+        silver: 0xcccccc,
+        gold: 0xd4af37,
+        copper: 0xb87333,
+        dark: 0x222222,
+      };
+      const rimColorValue = metalColors[customSpecs?.metalColor || "silver"] || 0xcccccc;
+
+      const canMaterial = new THREE.MeshPhysicalMaterial({
+        map: canTexture,
+        roughness: 0.35 - (glossiness * 0.25),
+        metalness: metalSheen ? 0.9 : 0.4,
+        clearcoat: glossiness,
+        clearcoatRoughness: 0.12 - (glossiness * 0.08)
+      });
+      canMaterialRef.current = canMaterial;
+
+      const rimMaterial = new THREE.MeshStandardMaterial({
+        color: rimColorValue,
+        roughness: 0.25,
+        metalness: 0.95
+      });
+      rimMaterialRef.current = rimMaterial;
+
+      // Build can group
+      const canGroup = new THREE.Group();
+      scene.add(canGroup);
+      canGroupRef.current = canGroup;
+
+      const labelGeo = new THREE.CylinderGeometry(0.85, 0.85, 2.65, 64, 1, true);
+      const labelMesh = new THREE.Mesh(labelGeo, canMaterial);
+      labelMesh.castShadow = true;
+      labelMesh.receiveShadow = true;
+      canGroup.add(labelMesh);
+
+      const neckGeo = new THREE.CylinderGeometry(0.78, 0.85, 0.12, 64, 1, true);
+      const neckMesh = new THREE.Mesh(neckGeo, rimMaterial);
+      neckMesh.position.y = 1.385;
+      canGroup.add(neckMesh);
+
+      const topRimGeo = new THREE.CylinderGeometry(0.8, 0.78, 0.05, 64);
+      const topRimMesh = new THREE.Mesh(topRimGeo, rimMaterial);
+      topRimMesh.position.y = 1.465;
+      canGroup.add(topRimMesh);
+
+      const lidGeo = new THREE.CylinderGeometry(0.78, 0.78, 0.02, 64);
+      const lidMesh = new THREE.Mesh(lidGeo, rimMaterial);
+      lidMesh.position.y = 1.455;
+      canGroup.add(lidMesh);
+
+      const tabGeo = new THREE.BoxGeometry(0.12, 0.015, 0.22);
+      const tabMesh = new THREE.Mesh(tabGeo, rimMaterial);
+      tabMesh.position.set(0, 1.47, 0.2);
+      tabMesh.rotation.x = 0.08;
+      canGroup.add(tabMesh);
+
+      const bottomNeckGeo = new THREE.CylinderGeometry(0.85, 0.76, 0.12, 64, 1, true);
+      const bottomNeckMesh = new THREE.Mesh(bottomNeckGeo, rimMaterial);
+      bottomNeckMesh.position.y = -1.385;
+      canGroup.add(bottomNeckMesh);
+
+      const bottomRimGeo = new THREE.CylinderGeometry(0.76, 0.76, 0.04, 64);
+      const bottomRimMesh = new THREE.Mesh(bottomRimGeo, rimMaterial);
+      bottomRimMesh.position.y = -1.455;
+      canGroup.add(bottomRimMesh);
+
+      // Particles
+      const particleCount = 42;
+      const particleGeo = new THREE.BufferGeometry();
+      const particlePositions = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 1.2 + Math.random() * 1.8;
+        const y = (Math.random() - 0.5) * 4.2;
+        particlePositions[i * 3] = Math.cos(angle) * radius;
+        particlePositions[i * 3 + 1] = y;
+        particlePositions[i * 3 + 2] = Math.sin(angle) * radius;
+      }
+      particleGeo.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
+      particleGeoRef.current = particleGeo;
+
+      const particleMaterial = new THREE.PointsMaterial({
+        color: flavorThemeColor,
+        size: 0.035,
+        transparent: true,
+        opacity: 0.75,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true
+      });
+
+      const particles = new THREE.Points(particleGeo, particleMaterial);
+      scene.add(particles);
+      particlesRef.current = particles;
+
+      // Animation loop
+      let animationId: number;
+      const animate = () => {
+        if (!mountedRef.current) return;
+        animationId = requestAnimationFrame(animate);
+
+        const drag = dragRef.current;
+        const cg = canGroupRef.current;
+        const pg = particleGeoRef.current;
+        const pl = pointLightRef.current;
+        const ren = rendererRef.current;
+        const cam = cameraRef.current;
+        const sc = sceneRef.current;
+        if (!cg || !pg || !pl || !ren || !cam || !sc) return;
+
+        drag.currentRotationY += (drag.targetRotationY - drag.currentRotationY) * 0.09;
+        drag.currentRotationX += (drag.targetRotationX - drag.currentRotationX) * 0.09;
+
+        if (!drag.isDragging) {
+          drag.targetRotationY += drag.spinVelocity;
+        }
+
+        cg.rotation.y = drag.currentRotationY;
+        cg.rotation.x = drag.currentRotationX;
+
+        drag.floatTime += 0.012;
+        cg.position.y = Math.sin(drag.floatTime) * 0.08;
+
+        const positions = pg.attributes.position.array as Float32Array;
+        for (let i = 0; i < particleCount; i++) {
+          const idx = i * 3 + 1;
+          positions[idx] += 0.006;
+          if (positions[idx] > 2.2) {
+            positions[idx] = -2.2;
+          }
+        }
+        pg.attributes.position.needsUpdate = true;
+
+        pl.position.x = Math.sin(drag.floatTime * 0.5) * 1.5;
+        pl.position.z = Math.cos(drag.floatTime * 0.5) * 2 + 1;
+
+        ren.render(sc, cam);
+      };
+
+      animate();
+
+      // Resize observer
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { width: newW, height: newH } = entry.contentRect;
+          if (cameraRef.current && rendererRef.current) {
+            cameraRef.current.aspect = newW / newH;
+            cameraRef.current.updateProjectionMatrix();
+            rendererRef.current.setSize(newW, newH);
+          }
+        }
+      });
+      resizeObserver.observe(currentMount);
+
+      return () => {
+        mountedRef.current = false;
+        cancelAnimationFrame(animationId);
+        resizeObserver.unobserve(currentMount);
+        resizeObserver.disconnect();
+
+        if (renderer.domElement.parentNode === currentMount) {
+          currentMount.removeChild(renderer.domElement);
+        }
+
+        labelGeo.dispose();
+        neckGeo.dispose();
+        topRimGeo.dispose();
+        lidGeo.dispose();
+        tabGeo.dispose();
+        bottomNeckGeo.dispose();
+        bottomRimGeo.dispose();
+        canTexture.dispose();
+        canMaterial.dispose();
+        rimMaterial.dispose();
+        particleGeo.dispose();
+        particleMaterial.dispose();
+        renderer.dispose();
+
+        sceneRef.current = null;
+        cameraRef.current = null;
+        rendererRef.current = null;
+        canGroupRef.current = null;
+        particlesRef.current = null;
+        particleGeoRef.current = null;
+        pointLightRef.current = null;
+        canMaterialRef.current = null;
+        rimMaterialRef.current = null;
+        canTextureRef.current = null;
+      };
+    } catch (err) {
+      console.error('ThreeDCan: Failed to initialize Three.js scene', err);
+      setHasError(true);
+    }
+    // Intentionally runs only once — setup effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Effect 2: Update texture, materials, lights when props change (no scene teardown)
+  useEffect(() => {
+    const canTex = canTextureRef.current;
+    const canMat = canMaterialRef.current;
+    const rimMat = rimMaterialRef.current;
+    const pl = pointLightRef.current;
+    if (!canTex || !canMat || !rimMat || !pl) return;
+
+    const themeHex = customSpecs?.themeHex || currentFlavor?.themeHex || "#b512fa";
+    const accentHex = customSpecs?.accentHex || "#ffffff";
+
     const specs: CanLabelSpecs = {
       name: customSpecs?.brandText || currentFlavor?.name || "SHOWON",
       subName: customSpecs?.subName || currentFlavor?.subName || "EXOTIQUE BURST",
       tagline: customSpecs?.tagline || currentFlavor?.tagline || "MOLECULAR ENERGY CELL",
-      themeHex: customSpecs?.themeHex || currentFlavor?.themeHex || "#b512fa",
-      accentHex: customSpecs?.accentHex || "#ffffff",
+      themeHex,
+      accentHex,
       volume: customSpecs?.volume || currentFlavor?.volume || "250ml",
       caffeine: customSpecs?.caffeine || currentFlavor?.nutrition?.caffeine || "150mg",
       sugar: customSpecs?.sugar || currentFlavor?.nutrition?.sugar || "2.5g",
@@ -395,213 +654,32 @@ export default function ThreeDCan({
       calories: customSpecs?.calories || currentFlavor?.nutrition?.calories || "15 kcal"
     };
 
-    // Flavor Colored Emissive Point Lights (Synced directly with specs themeHex)
-    const flavorThemeColor = new THREE.Color(specs.themeHex);
-    
-    const pointLight = new THREE.PointLight(flavorThemeColor, 1.6, 12, 1.5);
-    pointLight.position.set(0, -1, 3);
-    scene.add(pointLight);
-
-    const pointLightBack = new THREE.PointLight(flavorThemeColor, 0.8, 8, 2);
-    pointLightBack.position.set(-3, 3, -3);
-    scene.add(pointLightBack);
-
-    // E. CREATE HIGH-RES TEXTURE MAP CANVAS
+    // Redraw label
     const labelCanvas = document.createElement("canvas");
     labelCanvas.width = 1024;
     labelCanvas.height = 512;
     drawCanLabel(labelCanvas, specs);
+    canTex.image = labelCanvas;
+    canTex.needsUpdate = true;
 
-    const canTexture = new THREE.CanvasTexture(labelCanvas);
-    canTexture.colorSpace = THREE.SRGBColorSpace;
-    canTexture.wrapS = THREE.RepeatWrapping;
-    canTexture.wrapT = THREE.ClampToEdgeWrapping;
+    // Update material properties
+    canMat.roughness = 0.35 - (glossiness * 0.25);
+    canMat.metalness = metalSheen ? 0.9 : 0.4;
+    canMat.clearcoat = glossiness;
+    canMat.clearcoatRoughness = 0.12 - (glossiness * 0.08);
+    canMat.needsUpdate = true;
 
-    // F. BUILD METALLIC AND BRUSHED ALUMINUM MATERIALS
-    const canMaterial = new THREE.MeshPhysicalMaterial({
-      map: canTexture,
-      roughness: 0.35 - (glossiness * 0.25),
-      metalness: metalSheen ? 0.9 : 0.4,
-      clearcoat: glossiness,
-      clearcoatRoughness: 0.12 - (glossiness * 0.08)
-    });
-
-    // Derive metal ring/cap base colors based on design specifications
+    // Update rim color
     const metalColors = {
       silver: 0xcccccc,
       gold: 0xd4af37,
       copper: 0xb87333,
       dark: 0x222222,
     };
-    const rimColorValue = metalColors[customSpecs?.metalColor || "silver"] || 0xcccccc;
+    rimMat.color.setHex(metalColors[customSpecs?.metalColor || "silver"] || 0xcccccc);
 
-    // Pure raw aluminum material for can rims and pull tab
-    const rimMaterial = new THREE.MeshStandardMaterial({
-      color: rimColorValue,
-      roughness: 0.25,
-      metalness: 0.95
-    });
-
-    // G. 3D GEOMETRICAL PIECES (CAN ASSEMBLY GROUP)
-    const canGroup = new THREE.Group();
-    scene.add(canGroup);
-
-    // 1. Can Central Label Cylinder (open ended)
-    const labelGeo = new THREE.CylinderGeometry(0.85, 0.85, 2.65, 64, 1, true);
-    const labelMesh = new THREE.Mesh(labelGeo, canMaterial);
-    labelMesh.castShadow = true;
-    labelMesh.receiveShadow = true;
-    canGroup.add(labelMesh);
-
-    // 2. Can Neck (tapered top aluminum rim transition)
-    const neckGeo = new THREE.CylinderGeometry(0.78, 0.85, 0.12, 64, 1, true);
-    const neckMesh = new THREE.Mesh(neckGeo, rimMaterial);
-    neckMesh.position.y = 1.385;
-    canGroup.add(neckMesh);
-
-    // 3. Can Top Rim Bezel
-    const topRimGeo = new THREE.CylinderGeometry(0.8, 0.78, 0.05, 64);
-    const topRimMesh = new THREE.Mesh(topRimGeo, rimMaterial);
-    topRimMesh.position.y = 1.465;
-    canGroup.add(topRimMesh);
-
-    // 4. Can Lid Plate (flat cap inside top rim)
-    const lidGeo = new THREE.CylinderGeometry(0.78, 0.78, 0.02, 64);
-    const lidMesh = new THREE.Mesh(lidGeo, rimMaterial);
-    lidMesh.position.y = 1.455;
-    canGroup.add(lidMesh);
-
-    // 5. Metal Pull Tab Simulation on Lid
-    const tabGeo = new THREE.BoxGeometry(0.12, 0.015, 0.22);
-    const tabMesh = new THREE.Mesh(tabGeo, rimMaterial);
-    tabMesh.position.set(0, 1.47, 0.2);
-    tabMesh.rotation.x = 0.08;
-    canGroup.add(tabMesh);
-
-    // 6. Can Bottom Base Neck (tapered bottom)
-    const bottomNeckGeo = new THREE.CylinderGeometry(0.85, 0.76, 0.12, 64, 1, true);
-    const bottomNeckMesh = new THREE.Mesh(bottomNeckGeo, rimMaterial);
-    bottomNeckMesh.position.y = -1.385;
-    canGroup.add(bottomNeckMesh);
-
-    // 7. Bottom Base Cap
-    const bottomRimGeo = new THREE.CylinderGeometry(0.76, 0.76, 0.04, 64);
-    const bottomRimMesh = new THREE.Mesh(bottomRimGeo, rimMaterial);
-    bottomRimMesh.position.y = -1.455;
-    canGroup.add(bottomRimMesh);
-
-    // H. SPARKLE FLUID PARTICLES SYSTEM
-    const particleCount = 42;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
-
-    for (let i = 0; i < particleCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 1.2 + Math.random() * 1.8;
-      const y = (Math.random() - 0.5) * 4.2;
-
-      particlePositions[i * 3] = Math.cos(angle) * radius;
-      particlePositions[i * 3 + 1] = y;
-      particlePositions[i * 3 + 2] = Math.sin(angle) * radius;
-    }
-
-    particleGeo.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
-
-    const particleMaterial = new THREE.PointsMaterial({
-      color: flavorThemeColor,
-      size: 0.035,
-      transparent: true,
-      opacity: 0.75,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true
-    });
-
-    const particles = new THREE.Points(particleGeo, particleMaterial);
-    scene.add(particles);
-
-    // I. HARDWARE-ACCELERATED ANIMATION LOOP
-    let animationId: number;
-
-    const animate = () => {
-      animationId = requestAnimationFrame(animate);
-
-      const drag = dragRef.current;
-
-      // 1. Smoothly interpolate rotations (inertia & easing)
-      drag.currentRotationY += (drag.targetRotationY - drag.currentRotationY) * 0.09;
-      drag.currentRotationX += (drag.targetRotationX - drag.currentRotationX) * 0.09;
-
-      // If not dragging, apply continuous rotation
-      if (!drag.isDragging) {
-        drag.targetRotationY += drag.spinVelocity;
-      }
-
-      canGroup.rotation.y = drag.currentRotationY;
-      canGroup.rotation.x = drag.currentRotationX;
-
-      // 2. High-end floating levitation animation (sine curve)
-      drag.floatTime += 0.012;
-      canGroup.position.y = Math.sin(drag.floatTime) * 0.08;
-
-      // 3. Move/Float particle bubbles upwards
-      const positions = particleGeo.attributes.position.array as Float32Array;
-      for (let i = 0; i < particleCount; i++) {
-        const index = i * 3 + 1;
-        positions[index] += 0.006; // Float upward
-        
-        // Recirculate particle if it rises above can bounds
-        if (positions[index] > 2.2) {
-          positions[index] = -2.2;
-        }
-      }
-      particleGeo.attributes.position.needsUpdate = true;
-
-      // 4. Animate emissive lights gently
-      pointLight.position.x = Math.sin(drag.floatTime * 0.5) * 1.5;
-      pointLight.position.z = Math.cos(drag.floatTime * 0.5) * 2 + 1;
-
-      renderer.render(scene, camera);
-    };
-
-    animate();
-
-    // J. RESIZE CONTAINER DETECTOR
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width: newW, height: newH } = entry.contentRect;
-        camera.aspect = newW / newH;
-        camera.updateProjectionMatrix();
-        renderer.setSize(newW, newH);
-      }
-    });
-    resizeObserver.observe(currentMount);
-
-    // K. CLEANUP RESOURCES ON DISPOSE
-    return () => {
-      cancelAnimationFrame(animationId);
-      resizeObserver.unobserve(currentMount);
-      resizeObserver.disconnect();
-
-      // Clear all child nodes from currentMount container to guarantee zero duplicates
-      if (currentMount) {
-        currentMount.innerHTML = "";
-      }
-
-      // Dispose webgl assets to prevent memory leaks
-      labelGeo.dispose();
-      neckGeo.dispose();
-      topRimGeo.dispose();
-      lidGeo.dispose();
-      tabGeo.dispose();
-      bottomNeckGeo.dispose();
-      bottomRimGeo.dispose();
-      canTexture.dispose();
-      canMaterial.dispose();
-      rimMaterial.dispose();
-      particleGeo.dispose();
-      particleMaterial.dispose();
-      renderer.dispose();
-    };
+    // Update point light color
+    pl.color.set(themeHex);
   }, [
     currentFlavor?.id,
     customSpecs?.brandText,
@@ -616,11 +694,32 @@ export default function ThreeDCan({
     customSpecs?.taurine,
     customSpecs?.bVitamins,
     customSpecs?.calories,
-    isAutoSpin,
-    spinSpeed,
     glossiness,
     metalSheen
   ]);
+
+  // Effect 3: Update spin velocity
+  useEffect(() => {
+    dragRef.current.spinVelocity = isAutoSpin ? spinSpeed * 0.005 : 0;
+  }, [isAutoSpin, spinSpeed]);
+
+  // Effect 4: Flavor change — trigger spin boost
+  useEffect(() => {
+    dragRef.current.targetRotationY += Math.PI * 2;
+  }, [currentFlavor?.id, customSpecs?.brandText]);
+
+  if (hasError) {
+    return (
+      <div className="relative w-full max-w-[280px] xs:max-w-[320px] sm:max-w-[360px] h-[420px] xs:h-[480px] sm:h-[540px] flex items-center justify-center select-none">
+        <div className="flex flex-col items-center gap-3 text-zinc-500">
+          <div className="h-10 w-10 rounded-full bg-rose-500/10 flex items-center justify-center">
+            <span className="text-rose-400 text-xs font-bold">!</span>
+          </div>
+          <span className="font-mono text-[10px] text-zinc-600">3D UNAVAILABLE</span>
+        </div>
+      </div>
+    );
+  }
 
   // L. INTERACTIVE POINTER MECHANICS
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {

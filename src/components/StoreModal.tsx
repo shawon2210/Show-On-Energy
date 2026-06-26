@@ -127,7 +127,7 @@ export default function StoreModal({ isOpen, onClose, cartItems, onUpdateQuantit
                 onClick={onClose}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] bg-zinc-900 text-zinc-400 hover:text-white transition-colors"
               >
-                <X className="w-4.5 h-4.5" />
+                <X className="w-[18px] h-[18px]" />
               </button>
             </div>
 

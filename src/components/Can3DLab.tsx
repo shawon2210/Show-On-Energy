@@ -174,10 +174,23 @@ export default function Can3DLab() {
   };
 
   // Function to copy the raw React component code to clipboard
-  const handleCopyCode = () => {
+  const handleCopyCode = async () => {
     const code = getComponentCodeString();
-    navigator.clipboard.writeText(code);
-    setCopied(true);
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+    } catch {
+      // Fallback for insecure contexts or permission denial
+      const textArea = document.createElement('textarea');
+      textArea.value = code;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+    }
     setTimeout(() => setCopied(false), 2500);
   };
 
@@ -579,7 +592,7 @@ export default function ShowOnCan({
                   <button
                     key={preset.id}
                     onClick={() => applyPreset(preset)}
-                    className="group relative flex items-center gap-3 rounded-lg border border-white/5 bg-zinc-900/60 hover:bg-zinc-900 px-4 py-3 text-left transition-all hover:scale-[1.02] active:scale-98"
+                    className="group relative flex items-center gap-3 rounded-lg border border-white/5 bg-zinc-900/60 hover:bg-zinc-900 px-4 py-3 text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <div 
                       className="w-4 h-4 rounded-full border border-white/20 transition-transform group-hover:scale-110" 
@@ -601,7 +614,7 @@ export default function ShowOnCan({
             {/* Design Controls Box */}
             <div className="rounded-2xl border border-white/[0.04] bg-zinc-950/65 backdrop-blur-xl p-6 space-y-6">
               <div className="flex items-center gap-2 border-b border-white/[0.04] pb-4">
-                <Settings2 className="w-4.5 h-4.5 text-lime-400" />
+                <Settings2 className="w-[18px] h-[18px] text-lime-400" />
                 <h3 className="font-display text-base font-black tracking-wider uppercase text-white">
                   CAN CONTEXT CONFIG
                 </h3>
@@ -772,7 +785,7 @@ export default function ShowOnCan({
                     type="checkbox"
                     checked={metalSheen}
                     onChange={(e) => setMetalSheen(e.target.checked)}
-                    className="w-4.5 h-4.5 rounded border-white/10 text-lime-500 focus:ring-0 focus:ring-offset-0 bg-transparent"
+                    className="w-[18px] h-[18px] rounded border-white/10 text-lime-500 focus:ring-0 focus:ring-offset-0 bg-transparent"
                   />
                   <div>
                     <span className="block text-xs font-bold text-white uppercase tracking-wide">

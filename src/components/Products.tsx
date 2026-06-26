@@ -139,7 +139,7 @@ export default function Products({ onAddToCart }: ProductsProps) {
                     className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.05] bg-zinc-950 text-zinc-400 hover:text-white hover:border-white/[0.15] transition-colors"
                     aria-label="View specifications"
                   >
-                    <Eye className="w-4.5 h-4.5" />
+                    <Eye className="w-[18px] h-[18px]" />
                   </button>
                 </div>
               </motion.div>

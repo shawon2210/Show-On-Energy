@@ -167,7 +167,7 @@ export default function HomeCatalog({ onAddToCart, onFlavorChange, onNavigateToL
           <div className="lg:col-span-8 rounded-3xl border border-white/[0.04] bg-zinc-950 overflow-hidden relative flex flex-col order-1 lg:order-2">
             
             {/* Ambient radial blur backplate */}
-            <div className="absolute inset-0 pointer-events-none z-0 bg-radial-vignette opacity-20" />
+            <div className="absolute inset-0 pointer-events-none z-0 opacity-20" style={{ background: 'radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 70%)' }} />
             
             <div className="relative z-10 p-6 sm:p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center justify-between text-left h-full">
               

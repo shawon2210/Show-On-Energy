@@ -257,11 +257,11 @@ export default function Hero({
                 duration-300
                 hover:scale-105
                 hover:shadow-[0_0_40px_rgba(255,255,255,0.25)]
-                active:scale-98
+                active:scale-[0.98]
               "
             >
               <span>ORDER NOW</span>
-              <ArrowRight className="ml-2.5 h-4.5 w-4.5 transition-transform group-hover:translate-x-1.5" />
+              <ArrowRight className="ml-2.5 h-[18px] w-[18px] transition-transform group-hover:translate-x-1.5" />
             </button>
 
             <button
@@ -288,7 +288,7 @@ export default function Hero({
                 duration-300
                 hover:bg-white/10
                 hover:border-white/25
-                active:scale-98
+                active:scale-[0.98]
               "
             >
               View Flavors
